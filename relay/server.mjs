@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 const port = Number.parseInt(process.env.PORT ?? '8787', 10);
 const maxMessages = Number.parseInt(process.env.VAELOR_MAX_MESSAGES ?? '300', 10);
 const maxMessageLength = Number.parseInt(process.env.VAELOR_MAX_MESSAGE_LENGTH ?? '180', 10);
+const messageTtlMs = Number.parseInt(process.env.VAELOR_MESSAGE_TTL_MS ?? '600000', 10);
 const rateWindowMs = 10_000;
 const rateLimit = 6;
 
@@ -20,14 +21,18 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.method === 'GET' && url.pathname === '/health') {
+    pruneMessages();
     sendJson(response, 200, { ok: true, service: 'vaelor-chat-relay', messages: messages.length });
     return;
   }
 
   if (request.method === 'GET' && url.pathname === '/v1/chat') {
+    pruneMessages();
     const after = Number.parseInt(url.searchParams.get('after') ?? '0', 10) || 0;
+    const joinedAt = Number.parseInt(url.searchParams.get('joinedAt') ?? '0', 10) || 0;
+    const serverName = cleanText(url.searchParams.get('server') ?? '', 80);
     const body = messages
-      .filter((message) => message.id > after)
+      .filter((message) => message.id > after && message.createdAt >= joinedAt && message.server === serverName)
       .slice(-80)
       .map((message) => [
         message.id,
@@ -41,6 +46,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.method === 'POST' && url.pathname === '/v1/chat') {
+    pruneMessages();
     const ip = request.headers['x-forwarded-for']?.toString().split(',')[0].trim() || request.socket.remoteAddress || 'unknown';
     if (!allowMessage(ip)) {
       sendJson(response, 429, { ok: false, error: 'Slow down.' });
@@ -102,6 +108,13 @@ function allowMessage(ip) {
   bucket.push(now);
   rates.set(ip, bucket);
   return true;
+}
+
+function pruneMessages() {
+  const cutoff = Date.now() - messageTtlMs;
+  while (messages.length && messages[0].createdAt < cutoff) {
+    messages.shift();
+  }
 }
 
 function cleanText(value, limit) {
