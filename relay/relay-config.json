@@ -1,5 +1,5 @@
 {
-  "enabled": false,
-  "relayUrl": "",
-  "note": "Deploy relay/server.mjs, then set enabled to true and relayUrl to the public HTTPS URL."
+  "enabled": true,
+  "relayUrl": "https://vaelor-chat-relay.onrender.com",
+  "note": "Vaelor clients fetch this public relay URL from GitHub."
 }
