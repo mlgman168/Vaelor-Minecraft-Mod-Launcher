@@ -2,21 +2,17 @@
 
 This is the tiny backend used by `.Chat [message]`.
 
-## Deploy
+## Deploy On Render
 
-1. Push this `relay` folder to GitHub.
-2. Deploy it on a Node host such as Render, Railway, Fly.io, or a small VPS.
-3. Set the start command to `npm start` and the root directory to `relay`.
-4. After deployment, update `relay/relay-config.json`:
+1. Open Render and create a new Blueprint from this GitHub repo.
+2. Render will use the root `render.yaml` file and run the `relay` folder.
+3. Copy the deployed service URL, such as `https://vaelor-chat-relay.onrender.com`.
+4. In GitHub, add these repository secrets:
+   - `RENDER_DEPLOY_HOOK_URL`: Render service deploy hook URL.
+   - `VAELOR_RELAY_URL`: the public relay URL.
+5. Run the `Deploy Chat Relay` GitHub Action.
 
-```json
-{
-  "enabled": true,
-  "relayUrl": "https://your-vaelor-relay.example.com"
-}
-```
-
-Vaelor clients fetch that config from GitHub, so changing the URL does not require a client update.
+The workflow deploys the service, waits for `/health`, and updates `relay/relay-config.json` so Vaelor clients can discover the live relay automatically.
 
 ## Endpoints
 
