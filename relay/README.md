@@ -21,7 +21,7 @@ Vaelor clients fetch that config from GitHub, so changing the URL does not requi
 ## Endpoints
 
 - `GET /health`
-- `GET /v1/chat?after=0`
+- `GET /v1/chat?after=0&joinedAt=0&server=example.org`
 - `POST /v1/chat`
 
-The relay keeps recent messages in memory. Restarting the host clears old chat history, which is fine for a lightweight global client chat.
+The relay keeps recent messages in memory only. Messages are filtered by the Minecraft server label, hidden from clients who joined after they were sent, and pruned after `VAELOR_MESSAGE_TTL_MS` (default: 10 minutes). Restarting the host clears everything.
