@@ -1,0 +1,5 @@
+{
+  "enabled": false,
+  "relayUrl": "",
+  "note": "Deploy relay/server.mjs, then set enabled to true and relayUrl to the public HTTPS URL."
+}
