@@ -30,9 +30,8 @@ const server = createServer(async (request, response) => {
     pruneMessages();
     const after = Number.parseInt(url.searchParams.get('after') ?? '0', 10) || 0;
     const joinedAt = Number.parseInt(url.searchParams.get('joinedAt') ?? '0', 10) || 0;
-    const serverName = cleanText(url.searchParams.get('server') ?? '', 80);
     const body = messages
-      .filter((message) => message.id > after && message.createdAt >= joinedAt && message.server === serverName)
+      .filter((message) => message.id > after && message.createdAt >= joinedAt)
       .slice(-80)
       .map((message) => [
         message.id,
@@ -56,7 +55,6 @@ const server = createServer(async (request, response) => {
     const payload = await readJson(request, 4096);
     const sender = cleanText(payload?.sender, 24);
     const message = cleanText(payload?.message, maxMessageLength);
-    const serverName = cleanText(payload?.server, 80);
     const version = cleanText(payload?.version, 24);
     if (!sender || !message) {
       sendJson(response, 400, { ok: false, error: 'Missing sender or message.' });
@@ -68,7 +66,6 @@ const server = createServer(async (request, response) => {
       createdAt: Date.now(),
       sender,
       message,
-      server: serverName,
       version,
     };
     messages.push(entry);
