@@ -17,7 +17,7 @@ The workflow deploys the service, waits for `/health`, and updates `relay/relay-
 ## Endpoints
 
 - `GET /health`
-- `GET /v1/chat?after=0&joinedAt=0&server=example.org`
+- `GET /v1/chat?after=0&joinedAt=0`
 - `POST /v1/chat`
 
-The relay keeps recent messages in memory only. Messages are filtered by the Minecraft server label, hidden from clients who joined after they were sent, and pruned after `VAELOR_MESSAGE_TTL_MS` (default: 10 minutes). Restarting the host clears everything.
+The relay keeps recent messages in memory only. Messages are global across singleplayer, multiplayer, and any world, hidden from clients who joined after they were sent, and pruned after `VAELOR_MESSAGE_TTL_MS` (default: 10 minutes). Restarting the host clears everything.
